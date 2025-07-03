@@ -47,7 +47,7 @@ router.post("/register", [
     res.render("register", {
       errors: [],
       old: {},
-      success: "Registration successful"
+      success: "Registration successful ! Login Now "
     });
   } catch (err) {
     console.log(err);
