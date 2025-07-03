@@ -22,10 +22,7 @@ app.use(express.static('public'))
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(
-      process.env.MONGODB_URI,
-      {
-        useNewUrlParser: true,
-      }
+      process.env.MONGODB_URI
     );
     console.log("✅ MongoDB Connected");
   } catch (error) {
