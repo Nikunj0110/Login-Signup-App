@@ -2,6 +2,8 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
 const userSchema = require("../models/homeSchema");
+const sendWelcomeEmail = require("../utils/mailer"); // ADD THIS LINE
+
 
 // Registration Page
 router.get("/", (req, res) => {
@@ -44,10 +46,14 @@ router.post("/register", [
   try {
     const user = new userSchema({ name, email, password });
     await user.save();
+
+    //EMAIL SENDER FUNCTIONCALL
+    await sendWelcomeEmail(email,name)
+
     res.render("register", {
       errors: [],
       old: {},
-      success: "Registration successful ! Login Now "
+      success: "Registration successful ! Check your email ! And Login Now "
     });
   } catch (err) {
     console.log(err);
