@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Attendance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f2f2f2;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      color: #333;
+    }
+
+    form {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    select, input[type="date"], button {
+      padding: 8px 12px;
+      margin: 0 5px;
+      font-size: 14px;
+    }
+
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 18px;
+      text-align: center;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #444;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .late {
+      background-color: #a7b8be !important;
+    }
+
+    .early {
+      background-color: #ddffdd !important;
+    }
+
+    .status {
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .status-late {
+      color: #b30000;
+    }
+
+    .status-early {
+      color: #007700;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Admin Panel - Attendance</h1>
+
+  <!-- Filter Form -->
+  <form method="GET" action="/admin">
+    <label for="filter">Filter By:</label>
+    <select name="filter" id="filter" onchange="toggleDateInput(this.value)">
+      <option value="all" <%= (typeof filter === 'undefined' || filter === 'all') ? 'selected' : '' %>>All</option>
+      <option value="day" <%= filter === 'day' ? 'selected' : '' %>>Day</option>
+      <option value="week" <%= filter === 'week' ? 'selected' : '' %>>Week</option>
+      <option value="month" <%= filter === 'month' ? 'selected' : '' %>>Month</option>
+      <option value="year" <%= filter === 'year' ? 'selected' : '' %>>Year</option>
+    </select>
+
+    <input type="date" name="date" id="dateInput" value="<%= date || '' %>" style="display: none;">
+    <button type="submit">Apply</button>
+  </form>
+
+  <script>
+    function toggleDateInput(value) {
+      const dateInput = document.getElementById('dateInput');
+      if (value === "day" || value === "week" || value === "month" || value === "year") {
+        dateInput.style.display = "inline-block";
+      } else {
+        dateInput.style.display = "none";
+      }
+    }
+
+    window.onload = () => {
+      const selectedFilter = document.getElementById("filter").value;
+      toggleDateInput(selectedFilter);
+    };
+  </script>
+
+  <!-- Attendance Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Login</th>
+        <th>Lunch Out</th>
+        <th>Lunch In</th>
+        <th>Lunch Break</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (records.length > 0) { %>
+        <% records.forEach(function(r) { %>
+          <tr class="<%= r.isLate ? 'late' : 'early' %>">
+            <td><%= r.name %></td>
+            <td><%= r.loginTime %></td>
+            <td><%= r.lunchOut %></td>
+            <td><%= r.lunchIn %></td>
+            <td>
+              <% if (r.lunchOut !== "-" && r.lunchIn !== "-") { %>
+                <%= r.lunchDuration %> min
+              <% } else { %>
+                -
+              <% } %>
+            </td>
+            <td>
+              <!-- Login Status -->
+              <!-- <span class="status <%= r.isLate ? 'status-late' : 'status-early' %>">
+                <%= r.isLate ? 'Late Login' : 'On Time Login' %>
+              </span><br> -->
+              <!-- Lunch Status -->
+              <% if (r.lunchOut !== "-" && r.lunchIn !== "-") { %>
+                <span class="status <%= r.isLateFromLunch ? 'status-late' : 'status-early' %>">
+                  <%= r.isLateFromLunch ? 'Late from Lunch' : 'On Time' %>
+                </span>
+              <% } else { %>
+                <span class="status">-</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td colspan="6">No records found for selected filter.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+</body>
+</html>

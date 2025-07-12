@@ -1,45 +1,32 @@
-const express=require('express')
-const mongoose=require('mongoose')
-const app=express()
-const dotenv=require('dotenv')
+const express = require('express');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const dotenv = require('dotenv');
+const path = require('path');
 
-//load env configuration
 dotenv.config();
-const PORT=process.env.PORT
-app.set('view engine','ejs')
-app.use(express.json());
-app.use(express.urlencoded({extended:true}))
-app.use(express.static('public'))
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-//Database Connection
-// mongoose.connect(,{
-//         dbName: 'Register',
-// })
-// .then(()=>console.log("✅ MongoDB Connected!"))
-// .catch(err=>console.log("❌ Connection Error",err))
-// const db=mongoose.connection;
+// Middlewares
+app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(session({
+  secret: 'your_secret_key_here',
+  resave: false,
+  saveUninitialized: false
+}));
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(
-      process.env.MONGODB_URI
-    );
-    console.log("✅ MongoDB Connected");
-  } catch (error) {
-    console.error("Mongodb Failed",error);
-    process.exit(1);
-  }
-};
+// Connect DB
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.log("❌ MongoDB error", err));
 
-connectDB();
+// Routes
+const homeRouter = require('./routers/homeRouter');
+app.use('/', homeRouter);
 
-//Routes
-const homeRouter=require('./routers/homeRouter')
-app.use('/',homeRouter)
-
-app.listen(PORT,()=>{
-    console.log("Server Is Runnig");
-})
-
-
-module.exports=connectDB
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
